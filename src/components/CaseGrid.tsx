@@ -4,7 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CaseOpening } from "@/components/CaseOpening";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 
 interface Case {
   id: string;
@@ -101,10 +100,9 @@ export const CaseGrid = () => {
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {cases.map((caseItem) => (
-          <motion.div
+          <div
             key={caseItem.id}
-            whileHover={{ y: -5 }}
-            transition={{ type: "spring", stiffness: 300 }}
+            className="transform hover:-translate-y-1 transition-transform duration-300"
           >
             <Card className={`bg-[#1a1f2c] border-2 ${getRarityColor(caseItem.rarity)} overflow-hidden hover:shadow-lg hover:shadow-${caseItem.rarity === "legendary" ? "orange" : caseItem.rarity === "rare" ? "purple" : "blue"}-500/20 transition-all duration-300`}>
               <div className="relative pt-[100%]">
@@ -128,7 +126,7 @@ export const CaseGrid = () => {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         ))}
       </div>
 
