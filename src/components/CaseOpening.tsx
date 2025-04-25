@@ -3,7 +3,6 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, X } from "lucide-react";
 
 interface Skin {
@@ -141,96 +140,92 @@ export const CaseOpening = ({ caseId, caseName, casePrice, caseImage, onClose, o
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <AnimatePresence>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.9 }}
-          className="bg-[#1a1f2c] rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col"
-        >
-          <div className="flex justify-between items-center p-6 border-b border-gray-800">
-            <h2 className="text-xl font-bold text-white">{caseName}</h2>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
-          
-          <div className="p-6 flex-1 overflow-y-auto">
-            <div className="flex flex-col md:flex-row gap-6 items-center mb-8">
-              <div className="w-full md:w-1/3">
-                <div className="relative rounded-lg overflow-hidden">
-                  <img src={caseImage} alt={caseName} className="w-full h-auto" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1a1f2c] to-transparent"></div>
-                </div>
-              </div>
-              
-              <div className="w-full md:w-2/3 space-y-4">
-                <h3 className="text-2xl font-bold text-white">Содержимое кейса:</h3>
-                <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
-                  {possibleItems.slice(0, 8).map((item) => (
-                    <div key={item.id} className={`rounded border ${getRarityColor(item.rarity)} p-1 bg-gradient-to-b ${getRarityGradient(item.rarity)}`}>
-                      <img src={item.image} alt={item.name} className="w-full h-auto rounded" />
-                    </div>
-                  ))}
-                </div>
-                
-                {!isOpening ? (
-                  <Button
-                    className="w-full md:w-auto bg-[#f97316] hover:bg-[#ea580c] text-lg py-6"
-                    onClick={openCase}
-                  >
-                    Открыть за {casePrice} ₽
-                  </Button>
-                ) : winningItem ? (
-                  <div className="space-y-3">
-                    <p className="text-gray-400">
-                      Поздравляем! Вы получили:
-                    </p>
-                    <div className={`p-3 rounded-lg border-2 ${getRarityColor(winningItem.rarity)}`}>
-                      <div className="flex items-center gap-4">
-                        <img src={winningItem.image} alt={winningItem.name} className="w-20 h-20 object-cover rounded" />
-                        <div>
-                          <h4 className={`font-bold ${getRarityColor(winningItem.rarity)}`}>{winningItem.name}</h4>
-                          <p className="text-gray-400 text-sm">{winningItem.wear}</p>
-                          <p className="text-[#f97316] font-bold">{winningItem.price.toLocaleString()} ₽</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : null}
+      <div 
+        className="bg-[#1a1f2c] rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col opacity-0 scale-90 animate-in fade-in duration-300 ease-out"
+        style={{ animationFillMode: 'forwards' }}
+      >
+        <div className="flex justify-between items-center p-6 border-b border-gray-800">
+          <h2 className="text-xl font-bold text-white">{caseName}</h2>
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
+        
+        <div className="p-6 flex-1 overflow-y-auto">
+          <div className="flex flex-col md:flex-row gap-6 items-center mb-8">
+            <div className="w-full md:w-1/3">
+              <div className="relative rounded-lg overflow-hidden">
+                <img src={caseImage} alt={caseName} className="w-full h-auto" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1a1f2c] to-transparent"></div>
               </div>
             </div>
             
-            <Separator className="my-6 bg-gray-800" />
-            
-            {/* Секция с прокруткой */}
-            <div className="relative overflow-hidden h-48 mb-6">
-              <div className="absolute left-1/2 top-1/2 w-0.5 h-full bg-[#f97316] z-10 transform -translate-x-1/2 -translate-y-1/2"></div>
-              <div
-                ref={spinnerRef}
-                className="flex absolute left-0"
-                style={{ transform: "translateX(50%)" }}
-              >
-                {spinItems.map((item, index) => (
-                  <div
-                    key={`${item.id}-${index}`}
-                    className={`flex-shrink-0 w-52 mx-1 p-3 rounded-lg bg-[#0e1015] border ${getRarityColor(item.rarity)}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
-                      <div>
-                        <h4 className="font-medium text-white text-sm line-clamp-2">{item.name}</h4>
-                        <p className="text-xs text-gray-400">{item.wear}</p>
-                        <p className={`text-sm font-bold ${getRarityColor(item.rarity)}`}>{item.price.toLocaleString()} ₽</p>
-                      </div>
-                    </div>
+            <div className="w-full md:w-2/3 space-y-4">
+              <h3 className="text-2xl font-bold text-white">Содержимое кейса:</h3>
+              <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
+                {possibleItems.slice(0, 8).map((item) => (
+                  <div key={item.id} className={`rounded border ${getRarityColor(item.rarity)} p-1 bg-gradient-to-b ${getRarityGradient(item.rarity)}`}>
+                    <img src={item.image} alt={item.name} className="w-full h-auto rounded" />
                   </div>
                 ))}
               </div>
+              
+              {!isOpening ? (
+                <Button
+                  className="w-full md:w-auto bg-[#f97316] hover:bg-[#ea580c] text-lg py-6"
+                  onClick={openCase}
+                >
+                  Открыть за {casePrice} ₽
+                </Button>
+              ) : winningItem ? (
+                <div className="space-y-3">
+                  <p className="text-gray-400">
+                    Поздравляем! Вы получили:
+                  </p>
+                  <div className={`p-3 rounded-lg border-2 ${getRarityColor(winningItem.rarity)}`}>
+                    <div className="flex items-center gap-4">
+                      <img src={winningItem.image} alt={winningItem.name} className="w-20 h-20 object-cover rounded" />
+                      <div>
+                        <h4 className={`font-bold ${getRarityColor(winningItem.rarity)}`}>{winningItem.name}</h4>
+                        <p className="text-gray-400 text-sm">{winningItem.wear}</p>
+                        <p className="text-[#f97316] font-bold">{winningItem.price.toLocaleString()} ₽</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
             </div>
           </div>
-        </motion.div>
-      </AnimatePresence>
+          
+          <Separator className="my-6 bg-gray-800" />
+          
+          {/* Секция с прокруткой */}
+          <div className="relative overflow-hidden h-48 mb-6">
+            <div className="absolute left-1/2 top-1/2 w-0.5 h-full bg-[#f97316] z-10 transform -translate-x-1/2 -translate-y-1/2"></div>
+            <div
+              ref={spinnerRef}
+              className="flex absolute left-0"
+              style={{ transform: "translateX(50%)" }}
+            >
+              {spinItems.map((item, index) => (
+                <div
+                  key={`${item.id}-${index}`}
+                  className={`flex-shrink-0 w-52 mx-1 p-3 rounded-lg bg-[#0e1015] border ${getRarityColor(item.rarity)}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
+                    <div>
+                      <h4 className="font-medium text-white text-sm line-clamp-2">{item.name}</h4>
+                      <p className="text-xs text-gray-400">{item.wear}</p>
+                      <p className={`text-sm font-bold ${getRarityColor(item.rarity)}`}>{item.price.toLocaleString()} ₽</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
