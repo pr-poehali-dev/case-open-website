@@ -5,16 +5,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CaseGrid } from "@/components/CaseGrid";
 import { AuthDialog } from "@/components/AuthDialog";
 import { Navigation } from "@/components/Navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Index = () => {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
   const handleAuth = (mode: "login" | "register") => {
     setAuthMode(mode);
     setIsAuthOpen(true);
+  };
+  
+  // Для демонстрации. Можно удалить в реальном проекте
+  const loginDemo = () => {
+    setIsLoggedIn(true);
+    setIsAuthOpen(false);
   };
 
   return (
@@ -37,9 +44,15 @@ const Index = () => {
                 <Button onClick={() => navigate("/cases")} className="bg-[#f97316] hover:bg-[#ea580c] text-white">
                   Открыть кейсы
                 </Button>
-                <Button onClick={() => navigate("/inventory")} variant="outline" className="text-white border-white/20 hover:bg-white/10">
-                  Инвентарь
-                </Button>
+                {isLoggedIn ? (
+                  <Button onClick={() => navigate("/inventory")} variant="outline" className="text-white border-white/20 hover:bg-white/10">
+                    Инвентарь
+                  </Button>
+                ) : (
+                  <Button onClick={() => handleAuth("login")} variant="outline" className="text-white border-white/20 hover:bg-white/10">
+                    Войти
+                  </Button>
+                )}
               </div>
             </div>
           </div>
@@ -94,7 +107,13 @@ const Index = () => {
 
       <AuthDialog 
         open={isAuthOpen} 
-        onOpenChange={setIsAuthOpen} 
+        onOpenChange={(open) => {
+          setIsAuthOpen(open);
+          // Демонстрационный вход после закрытия диалога
+          if (!open && authMode === "login") {
+            loginDemo();
+          }
+        }} 
         mode={authMode} 
         onChangeMode={(mode) => setAuthMode(mode)} 
       />

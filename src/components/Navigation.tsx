@@ -2,9 +2,10 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { MenuIcon, User, Wallet, Box, LayoutGrid } from "lucide-react";
+import { MenuIcon, User, Wallet, Box, LayoutGrid, LogOut, Users } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface NavigationProps {
   onLogin: () => void;
@@ -12,8 +13,24 @@ interface NavigationProps {
 }
 
 export const Navigation = ({ onLogin, onRegister }: NavigationProps) => {
-  const [balance] = useState(0);
-  const [isLoggedIn] = useState(false);
+  const [balance, setBalance] = useState(0);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [onlineUsers, setOnlineUsers] = useState(0);
+
+  // Симуляция получения данных пользователя
+  useEffect(() => {
+    // Случайное количество онлайн пользователей между 150 и 350
+    setOnlineUsers(Math.floor(Math.random() * 200) + 150);
+    
+    // Для демо-целей можно временно включить авторизацию
+    // setIsLoggedIn(true);
+    // setBalance(5000);
+  }, []);
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setBalance(0);
+  };
 
   return (
     <header className="bg-[#1a1f2c] py-4 border-b border-gray-800">
@@ -28,8 +45,15 @@ export const Navigation = ({ onLogin, onRegister }: NavigationProps) => {
               <Link to="/cases" className="text-gray-300 hover:text-white">Кейсы</Link>
               <Link to="/crash" className="text-gray-300 hover:text-white">Краш</Link>
               <Link to="/upgrade" className="text-gray-300 hover:text-white">Апгрейд</Link>
-              <Link to="/inventory" className="text-gray-300 hover:text-white">Инвентарь</Link>
+              {isLoggedIn && (
+                <Link to="/inventory" className="text-gray-300 hover:text-white">Инвентарь</Link>
+              )}
             </nav>
+
+            <div className="hidden md:flex items-center text-sm text-gray-400">
+              <Users className="h-4 w-4 mr-1.5 text-[#f97316]" />
+              <span>Онлайн: {onlineUsers}</span>
+            </div>
           </div>
           
           <div className="hidden md:flex items-center space-x-4">
@@ -39,12 +63,29 @@ export const Navigation = ({ onLogin, onRegister }: NavigationProps) => {
                   <Wallet className="text-[#f97316] mr-2 h-5 w-5" />
                   <span className="text-white font-medium">{balance.toLocaleString()} ₽</span>
                 </div>
-                <Link to="/profile">
-                  <Button variant="outline" className="text-white border-white/20 hover:bg-white/10">
-                    <User className="mr-2 h-4 w-4" />
-                    Профиль
-                  </Button>
-                </Link>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="text-white border-white/20 hover:bg-white/10">
+                      <User className="mr-2 h-4 w-4" />
+                      Профиль
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="bg-[#1a1f2c] border-gray-800 text-white">
+                    <DropdownMenuItem className="hover:bg-[#0e1015] cursor-pointer" onClick={() => window.location.href = "/inventory"}>
+                      <Box className="mr-2 h-4 w-4 text-[#f97316]" />
+                      Инвентарь
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-[#0e1015] cursor-pointer">
+                      <Wallet className="mr-2 h-4 w-4 text-[#f97316]" />
+                      Пополнить баланс
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-[#0e1015] cursor-pointer" onClick={handleLogout}>
+                      <LogOut className="mr-2 h-4 w-4 text-[#f97316]" />
+                      Выйти
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </>
             ) : (
               <>
@@ -67,26 +108,33 @@ export const Navigation = ({ onLogin, onRegister }: NavigationProps) => {
             </SheetTrigger>
             <SheetContent side="right" className="bg-[#1a1f2c] text-white border-l border-gray-800">
               <div className="py-6 space-y-6">
-                <div className="space-y-3">
+                <div className="flex justify-between items-center">
                   <h3 className="text-lg font-medium">Меню</h3>
-                  <div className="space-y-2">
-                    <Link to="/cases" className="flex items-center py-2">
-                      <Box className="mr-3 h-5 w-5 text-[#f97316]" />
-                      Кейсы
-                    </Link>
-                    <Link to="/crash" className="flex items-center py-2">
-                      <LayoutGrid className="mr-3 h-5 w-5 text-[#f97316]" />
-                      Краш
-                    </Link>
-                    <Link to="/upgrade" className="flex items-center py-2">
-                      <LayoutGrid className="mr-3 h-5 w-5 text-[#f97316]" />
-                      Апгрейд
-                    </Link>
+                  <div className="text-sm text-gray-400 flex items-center">
+                    <Users className="h-4 w-4 mr-1.5 text-[#f97316]" />
+                    <span>Онлайн: {onlineUsers}</span>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Link to="/cases" className="flex items-center py-2">
+                    <Box className="mr-3 h-5 w-5 text-[#f97316]" />
+                    Кейсы
+                  </Link>
+                  <Link to="/crash" className="flex items-center py-2">
+                    <LayoutGrid className="mr-3 h-5 w-5 text-[#f97316]" />
+                    Краш
+                  </Link>
+                  <Link to="/upgrade" className="flex items-center py-2">
+                    <LayoutGrid className="mr-3 h-5 w-5 text-[#f97316]" />
+                    Апгрейд
+                  </Link>
+                  {isLoggedIn && (
                     <Link to="/inventory" className="flex items-center py-2">
                       <Box className="mr-3 h-5 w-5 text-[#f97316]" />
                       Инвентарь
                     </Link>
-                  </div>
+                  )}
                 </div>
                 
                 {isLoggedIn ? (
@@ -98,11 +146,9 @@ export const Navigation = ({ onLogin, onRegister }: NavigationProps) => {
                     <Button className="w-full bg-[#f97316] hover:bg-[#ea580c]">
                       Пополнить
                     </Button>
-                    <Link to="/profile" className="block">
-                      <Button variant="outline" className="w-full text-white border-white/20 hover:bg-white/10">
-                        Профиль
-                      </Button>
-                    </Link>
+                    <Button variant="outline" className="w-full text-white border-white/20 hover:bg-white/10" onClick={handleLogout}>
+                      Выйти
+                    </Button>
                   </div>
                 ) : (
                   <div className="space-y-3">

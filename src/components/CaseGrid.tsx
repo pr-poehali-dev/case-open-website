@@ -1,7 +1,10 @@
 
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { CaseOpening } from "@/components/CaseOpening";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 interface Case {
   id: string;
@@ -11,8 +14,20 @@ interface Case {
   rarity: "common" | "rare" | "legendary";
 }
 
+interface Skin {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  rarity: "common" | "rare" | "epic" | "legendary";
+  wear: string;
+}
+
 export const CaseGrid = () => {
   const navigate = useNavigate();
+  const [selectedCase, setSelectedCase] = useState<Case | null>(null);
+  const [isOpening, setIsOpening] = useState(false);
+  const [inventory, setInventory] = useState<Skin[]>([]);
   
   // Демо-данные для кейсов
   const cases: Case[] = [
@@ -73,36 +88,63 @@ export const CaseGrid = () => {
     }
   };
 
-  const handleOpenCase = (caseId: string) => {
-    navigate(`/case-opening/${caseId}`);
+  const handleOpenCase = (caseItem: Case) => {
+    setSelectedCase(caseItem);
+    setIsOpening(true);
+  };
+
+  const handleAddToInventory = (skin: Skin) => {
+    setInventory(prev => [...prev, skin]);
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {cases.map((caseItem) => (
-        <Card key={caseItem.id} className={`bg-[#1a1f2c] border-2 ${getRarityColor(caseItem.rarity)} overflow-hidden hover:shadow-lg hover:shadow-${caseItem.rarity === "legendary" ? "orange" : caseItem.rarity === "rare" ? "purple" : "blue"}-500/20 transition-all duration-300`}>
-          <div className="relative pt-[100%]">
-            <img 
-              src={caseItem.image} 
-              alt={caseItem.name} 
-              className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#1a1f2c]/90"></div>
-          </div>
-          <CardContent className="p-4">
-            <h3 className="text-lg font-bold mb-2">{caseItem.name}</h3>
-            <div className="flex justify-between items-center">
-              <span className="text-[#f97316] font-bold">{caseItem.price.toLocaleString()} ₽</span>
-              <Button 
-                onClick={() => handleOpenCase(caseItem.id)}
-                className="bg-[#f97316] hover:bg-[#ea580c]"
-              >
-                Открыть
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
+    <>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {cases.map((caseItem) => (
+          <motion.div
+            key={caseItem.id}
+            whileHover={{ y: -5 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <Card className={`bg-[#1a1f2c] border-2 ${getRarityColor(caseItem.rarity)} overflow-hidden hover:shadow-lg hover:shadow-${caseItem.rarity === "legendary" ? "orange" : caseItem.rarity === "rare" ? "purple" : "blue"}-500/20 transition-all duration-300`}>
+              <div className="relative pt-[100%]">
+                <img 
+                  src={caseItem.image} 
+                  alt={caseItem.name} 
+                  className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#1a1f2c]/90"></div>
+              </div>
+              <CardContent className="p-4">
+                <h3 className="text-lg font-bold mb-2">{caseItem.name}</h3>
+                <div className="flex justify-between items-center">
+                  <span className="text-[#f97316] font-bold">{caseItem.price.toLocaleString()} ₽</span>
+                  <Button 
+                    onClick={() => handleOpenCase(caseItem)}
+                    className="bg-[#f97316] hover:bg-[#ea580c]"
+                  >
+                    Открыть
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+
+      {isOpening && selectedCase && (
+        <CaseOpening 
+          caseId={selectedCase.id}
+          caseName={selectedCase.name}
+          casePrice={selectedCase.price}
+          caseImage={selectedCase.image}
+          onClose={() => {
+            setIsOpening(false);
+            setSelectedCase(null);
+          }}
+          onAddToInventory={handleAddToInventory}
+        />
+      )}
+    </>
   );
 };
