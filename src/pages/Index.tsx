@@ -7,26 +7,72 @@ import { AuthDialog } from "@/components/AuthDialog";
 import { Navigation } from "@/components/Navigation";
 import { useState, useEffect } from "react";
 
+// Интерфейс скина для инвентаря
+interface Skin {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  rarity: "common" | "rare" | "epic" | "legendary";
+  wear: string;
+}
+
 const Index = () => {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [balance, setBalance] = useState(5000); // Начальный баланс
+  const [userInventory, setUserInventory] = useState<Skin[]>([]);
   const navigate = useNavigate();
+
+  // Проверяем статус авторизации при загрузке страницы
+  useEffect(() => {
+    const loginStatus = localStorage.getItem('cs2-login-status');
+    if (loginStatus === 'logged-in') {
+      setIsLoggedIn(true);
+      
+      // Получаем баланс из localStorage
+      const storedBalance = localStorage.getItem('cs2-balance');
+      if (storedBalance) {
+        setBalance(Number(storedBalance));
+      }
+      
+      // Получаем инвентарь из localStorage
+      const storedInventory = localStorage.getItem('cs2-inventory');
+      if (storedInventory) {
+        setUserInventory(JSON.parse(storedInventory));
+      }
+    }
+  }, []);
 
   const handleAuth = (mode: "login" | "register") => {
     setAuthMode(mode);
     setIsAuthOpen(true);
   };
   
-  // Для демонстрации. Можно удалить в реальном проекте
+  // Аутентификация пользователя
   const loginDemo = () => {
     setIsLoggedIn(true);
+    localStorage.setItem('cs2-login-status', 'logged-in');
+    localStorage.setItem('cs2-balance', balance.toString());
     setIsAuthOpen(false);
+  };
+  
+  // Выход из аккаунта
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    localStorage.removeItem('cs2-login-status');
   };
 
   return (
     <div className="min-h-screen bg-[#0e1015] text-white flex flex-col">
-      <Navigation onLogin={() => handleAuth("login")} onRegister={() => handleAuth("register")} />
+      <Navigation 
+        onLogin={() => handleAuth("login")} 
+        onRegister={() => handleAuth("register")} 
+        isLoggedIn={isLoggedIn}
+        balance={balance}
+        onLogout={handleLogout}
+      />
       
       <main className="flex-1 container mx-auto px-4 py-8">
         <section className="mb-10">

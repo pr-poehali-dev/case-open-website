@@ -10,27 +10,19 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 interface NavigationProps {
   onLogin: () => void;
   onRegister: () => void;
+  isLoggedIn: boolean;
+  balance: number;
+  onLogout: () => void;
 }
 
-export const Navigation = ({ onLogin, onRegister }: NavigationProps) => {
-  const [balance, setBalance] = useState(0);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+export const Navigation = ({ onLogin, onRegister, isLoggedIn, balance, onLogout }: NavigationProps) => {
   const [onlineUsers, setOnlineUsers] = useState(0);
 
   // Симуляция получения данных пользователя
   useEffect(() => {
     // Случайное количество онлайн пользователей между 150 и 350
     setOnlineUsers(Math.floor(Math.random() * 200) + 150);
-    
-    // Для демо-целей можно временно включить авторизацию
-    // setIsLoggedIn(true);
-    // setBalance(5000);
   }, []);
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setBalance(0);
-  };
 
   return (
     <header className="bg-[#1a1f2c] py-4 border-b border-gray-800">
@@ -80,7 +72,7 @@ export const Navigation = ({ onLogin, onRegister }: NavigationProps) => {
                       <Wallet className="mr-2 h-4 w-4 text-[#f97316]" />
                       Пополнить баланс
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="hover:bg-[#0e1015] cursor-pointer" onClick={handleLogout}>
+                    <DropdownMenuItem className="hover:bg-[#0e1015] cursor-pointer" onClick={onLogout}>
                       <LogOut className="mr-2 h-4 w-4 text-[#f97316]" />
                       Выйти
                     </DropdownMenuItem>
@@ -146,7 +138,7 @@ export const Navigation = ({ onLogin, onRegister }: NavigationProps) => {
                     <Button className="w-full bg-[#f97316] hover:bg-[#ea580c]">
                       Пополнить
                     </Button>
-                    <Button variant="outline" className="w-full text-white border-white/20 hover:bg-white/10" onClick={handleLogout}>
+                    <Button variant="outline" className="w-full text-white border-white/20 hover:bg-white/10" onClick={onLogout}>
                       Выйти
                     </Button>
                   </div>

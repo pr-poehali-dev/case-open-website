@@ -2,15 +2,17 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CaseOpening } from "@/components/CaseOpening";
-import { useNavigate } from "react-router-dom";
+import { CaseOpening } from "./CaseOpening";
 
 interface Case {
   id: string;
   name: string;
   price: number;
   image: string;
-  rarity: "common" | "rare" | "legendary";
+  topItem: {
+    name: string;
+    image: string;
+  };
 }
 
 interface Skin {
@@ -19,130 +21,165 @@ interface Skin {
   price: number;
   image: string;
   rarity: "common" | "rare" | "epic" | "legendary";
-  wear: string;
+  wear: "Поношенное" | "После полевых" | "Немного поношенное" | "Прямо с завода" | "Немного поношенное (MW)";
 }
 
 export const CaseGrid = () => {
-  const navigate = useNavigate();
   const [selectedCase, setSelectedCase] = useState<Case | null>(null);
-  const [isOpening, setIsOpening] = useState(false);
   const [inventory, setInventory] = useState<Skin[]>([]);
   
-  // Демо-данные для кейсов
   const cases: Case[] = [
     {
       id: "case1",
-      name: "Стандартный кейс",
-      price: 499,
-      image: "https://images.unsplash.com/photo-1576498212689-9eae242af0f9?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-      rarity: "common"
+      name: "Кейс \"Опасная зона\"",
+      price: 990,
+      image: "https://images.unsplash.com/photo-1604085572504-a392ddf0d86a?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
+      topItem: {
+        name: "AWP | Азимов",
+        image: "https://images.unsplash.com/photo-1604085572504-a392ddf0d86a?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80"
+      }
     },
     {
       id: "case2",
-      name: "Премиум кейс",
-      price: 1299,
-      image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-      rarity: "rare"
+      name: "Кейс \"Прорыв\"",
+      price: 790,
+      image: "https://images.unsplash.com/photo-1595323397663-b329313268d3?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
+      topItem: {
+        name: "M4A4 | Вой",
+        image: "https://images.unsplash.com/photo-1595323397663-b329313268d3?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80"
+      }
     },
     {
       id: "case3",
-      name: "Золотой кейс",
-      price: 2999,
-      image: "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-      rarity: "legendary"
+      name: "Кейс \"Спектр\"",
+      price: 1200,
+      image: "https://images.unsplash.com/photo-1560158670-a6ebd42631db?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
+      topItem: {
+        name: "Нож-бабочка | Градиент",
+        image: "https://images.unsplash.com/photo-1560158670-a6ebd42631db?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80"
+      }
     },
     {
       id: "case4",
-      name: "Кейс с ножами",
-      price: 3999,
-      image: "https://images.unsplash.com/photo-1542481889-6f55a5c4bd3c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-      rarity: "legendary"
+      name: "Кейс \"Хрома\"",
+      price: 850,
+      image: "https://images.unsplash.com/photo-1593642533144-3d62aa4783ec?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
+      topItem: {
+        name: "Glock-18 | Градиент",
+        image: "https://images.unsplash.com/photo-1593642533144-3d62aa4783ec?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80"
+      }
     },
     {
       id: "case5",
-      name: "Оружейный кейс",
-      price: 899,
-      image: "https://images.unsplash.com/photo-1516927061785-4b57a323edfb?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-      rarity: "rare"
+      name: "Кейс \"Гамма\"",
+      price: 1100,
+      image: "https://images.unsplash.com/photo-1598133894008-61f7fdb8cc3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
+      topItem: {
+        name: "AK-47 | Азимов",
+        image: "https://images.unsplash.com/photo-1598133894008-61f7fdb8cc3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80"
+      }
     },
     {
       id: "case6",
-      name: "Скрытный кейс",
-      price: 699,
-      image: "https://images.unsplash.com/photo-1507457379470-08b800bebc67?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-      rarity: "common"
+      name: "Кейс \"Снайпер\"",
+      price: 950,
+      image: "https://images.unsplash.com/photo-1582057749190-40c6451be0fd?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
+      topItem: {
+        name: "SSG 08 | Кровь в воде",
+        image: "https://images.unsplash.com/photo-1582057749190-40c6451be0fd?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80"
+      }
     },
-  ];
-
-  const getRarityColor = (rarity: Case["rarity"]) => {
-    switch (rarity) {
-      case "common":
-        return "border-blue-500";
-      case "rare":
-        return "border-purple-500";
-      case "legendary":
-        return "border-[#f97316]";
-      default:
-        return "border-gray-500";
+    {
+      id: "case7",
+      name: "Кейс \"Феникс\"",
+      price: 890,
+      image: "https://images.unsplash.com/photo-1607302628343-3e4d63c2e372?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
+      topItem: {
+        name: "Desert Eagle | Пламя",
+        image: "https://images.unsplash.com/photo-1607302628343-3e4d63c2e372?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80"
+      }
+    },
+    {
+      id: "case8",
+      name: "Кейс \"Револьвер\"",
+      price: 750,
+      image: "https://images.unsplash.com/photo-1595323397490-631c6057ab4a?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
+      topItem: {
+        name: "USP-S | Неонуар",
+        image: "https://images.unsplash.com/photo-1595323397490-631c6057ab4a?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80"
+      }
     }
-  };
-
-  const handleOpenCase = (caseItem: Case) => {
-    setSelectedCase(caseItem);
-    setIsOpening(true);
-  };
-
+  ];
+  
   const handleAddToInventory = (skin: Skin) => {
     setInventory(prev => [...prev, skin]);
+    
+    // Сохраняем в localStorage
+    const storedInventory = localStorage.getItem('cs2-inventory');
+    const parsedInventory = storedInventory ? JSON.parse(storedInventory) : [];
+    localStorage.setItem('cs2-inventory', JSON.stringify([...parsedInventory, skin]));
   };
-
+  
   return (
-    <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {cases.map((caseItem) => (
           <div
             key={caseItem.id}
-            className="transform hover:-translate-y-1 transition-transform duration-300"
+            className="transition-all duration-300 transform hover:scale-105 cursor-pointer"
+            onClick={() => setSelectedCase(caseItem)}
           >
-            <Card className={`bg-[#1a1f2c] border-2 ${getRarityColor(caseItem.rarity)} overflow-hidden hover:shadow-lg hover:shadow-${caseItem.rarity === "legendary" ? "orange" : caseItem.rarity === "rare" ? "purple" : "blue"}-500/20 transition-all duration-300`}>
-              <div className="relative pt-[100%]">
-                <img 
-                  src={caseItem.image} 
-                  alt={caseItem.name} 
-                  className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#1a1f2c]/90"></div>
+            <Card className="bg-[#1a1f2c] border-gray-800 overflow-hidden">
+              <div className="pt-3 px-3">
+                <div className="relative rounded-t-lg overflow-hidden bg-[#0e1015] p-6 flex justify-center items-center">
+                  <img
+                    src={caseItem.image}
+                    alt={caseItem.name}
+                    className="h-40 w-auto object-contain transition-transform hover:scale-110 duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0e1015] to-transparent opacity-60"></div>
+                </div>
               </div>
               <CardContent className="p-4">
-                <h3 className="text-lg font-bold mb-2">{caseItem.name}</h3>
-                <div className="flex justify-between items-center">
-                  <span className="text-[#f97316] font-bold">{caseItem.price.toLocaleString()} ₽</span>
-                  <Button 
-                    onClick={() => handleOpenCase(caseItem)}
-                    className="bg-[#f97316] hover:bg-[#ea580c]"
-                  >
-                    Открыть
-                  </Button>
+                <h3 className="text-lg font-medium text-white truncate">{caseItem.name}</h3>
+                <div className="flex justify-between items-center mt-2">
+                  <div className="flex items-center">
+                    <img
+                      src={caseItem.topItem.image}
+                      alt={caseItem.topItem.name}
+                      className="w-8 h-8 rounded object-cover mr-2 border border-[#f97316]"
+                    />
+                    <span className="text-gray-400 text-xs truncate max-w-[100px]">
+                      {caseItem.topItem.name}
+                    </span>
+                  </div>
+                  <span className="font-bold text-[#f97316]">{caseItem.price} ₽</span>
                 </div>
+                <Button
+                  className="w-full mt-4 bg-[#f97316] hover:bg-[#ea580c]"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedCase(caseItem);
+                  }}
+                >
+                  Открыть
+                </Button>
               </CardContent>
             </Card>
           </div>
         ))}
       </div>
-
-      {isOpening && selectedCase && (
-        <CaseOpening 
+      
+      {selectedCase && (
+        <CaseOpening
           caseId={selectedCase.id}
           caseName={selectedCase.name}
           casePrice={selectedCase.price}
           caseImage={selectedCase.image}
-          onClose={() => {
-            setIsOpening(false);
-            setSelectedCase(null);
-          }}
+          onClose={() => setSelectedCase(null)}
           onAddToInventory={handleAddToInventory}
         />
       )}
-    </>
+    </div>
   );
 };

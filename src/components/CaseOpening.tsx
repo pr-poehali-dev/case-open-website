@@ -141,8 +141,7 @@ export const CaseOpening = ({ caseId, caseName, casePrice, caseImage, onClose, o
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
       <div 
-        className="bg-[#1a1f2c] rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col opacity-0 scale-90 animate-in fade-in duration-300 ease-out"
-        style={{ animationFillMode: 'forwards' }}
+        className="bg-[#1a1f2c] rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-in fade-in duration-300 ease-out"
       >
         <div className="flex justify-between items-center p-6 border-b border-gray-800">
           <h2 className="text-xl font-bold text-white">{caseName}</h2>
