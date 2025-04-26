@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { MenuIcon, User, Wallet, Box, LayoutGrid, LogOut, Users } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
@@ -17,6 +17,7 @@ interface NavigationProps {
 
 export const Navigation = ({ onLogin, onRegister, isLoggedIn, balance, onLogout }: NavigationProps) => {
   const [onlineUsers, setOnlineUsers] = useState(0);
+  const navigate = useNavigate();
 
   // Симуляция получения данных пользователя
   useEffect(() => {
@@ -64,11 +65,11 @@ export const Navigation = ({ onLogin, onRegister, isLoggedIn, balance, onLogout 
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="bg-[#1a1f2c] border-gray-800 text-white">
-                    <DropdownMenuItem className="hover:bg-[#0e1015] cursor-pointer" onClick={() => window.location.href = "/inventory"}>
+                    <DropdownMenuItem className="hover:bg-[#0e1015] cursor-pointer" onClick={() => navigate("/inventory")}>
                       <Box className="mr-2 h-4 w-4 text-[#f97316]" />
                       Инвентарь
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="hover:bg-[#0e1015] cursor-pointer">
+                    <DropdownMenuItem className="hover:bg-[#0e1015] cursor-pointer" onClick={() => navigate("/deposit")}>
                       <Wallet className="mr-2 h-4 w-4 text-[#f97316]" />
                       Пополнить баланс
                     </DropdownMenuItem>
@@ -135,7 +136,7 @@ export const Navigation = ({ onLogin, onRegister, isLoggedIn, balance, onLogout 
                       <h3 className="text-lg font-medium">Баланс</h3>
                       <span className="font-bold text-[#f97316]">{balance.toLocaleString()} ₽</span>
                     </div>
-                    <Button className="w-full bg-[#f97316] hover:bg-[#ea580c]">
+                    <Button className="w-full bg-[#f97316] hover:bg-[#ea580c]" onClick={() => navigate("/deposit")}>
                       Пополнить
                     </Button>
                     <Button variant="outline" className="w-full text-white border-white/20 hover:bg-white/10" onClick={onLogout}>

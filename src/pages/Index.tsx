@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CaseGrid } from "@/components/CaseGrid";
 import { AuthDialog } from "@/components/AuthDialog";
 import { Navigation } from "@/components/Navigation";
+import { CaseOpening } from "@/components/CaseOpening";
 import { useState, useEffect } from "react";
 
 // Интерфейс скина для инвентаря
@@ -17,12 +18,23 @@ interface Skin {
   wear: string;
 }
 
+// Интерфейс кейса
+interface Case {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  count?: number;
+}
+
 const Index = () => {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [balance, setBalance] = useState(5000); // Начальный баланс
   const [userInventory, setUserInventory] = useState<Skin[]>([]);
+  const [selectedCase, setSelectedCase] = useState<Case | null>(null);
+  const [isCaseOpeningActive, setIsCaseOpeningActive] = useState(false);
   const navigate = useNavigate();
 
   // Проверяем статус авторизации при загрузке страницы
@@ -62,6 +74,30 @@ const Index = () => {
   const handleLogout = () => {
     setIsLoggedIn(false);
     localStorage.removeItem('cs2-login-status');
+  };
+
+  // Обновление баланса
+  const updateBalance = (newBalance: number) => {
+    setBalance(newBalance);
+    localStorage.setItem('cs2-balance', newBalance.toString());
+  };
+
+  // Добавление скина в инвентарь
+  const addToInventory = (skin: Skin) => {
+    const updatedInventory = [...userInventory, {...skin, id: skin.id + "-" + Date.now()}];
+    setUserInventory(updatedInventory);
+    localStorage.setItem('cs2-inventory', JSON.stringify(updatedInventory));
+  };
+
+  // Открытие кейса
+  const handleOpenCase = (caseItem: Case) => {
+    if (!isLoggedIn) {
+      handleAuth("login");
+      return;
+    }
+    
+    setSelectedCase(caseItem);
+    setIsCaseOpeningActive(true);
   };
 
   return (
@@ -112,7 +148,7 @@ const Index = () => {
             
             <TabsContent value="cases" className="mt-0">
               <h2 className="text-2xl font-bold mb-6">Популярные кейсы</h2>
-              <CaseGrid />
+              <CaseGrid onOpenCase={handleOpenCase} />
             </TabsContent>
             
             <TabsContent value="crash" className="mt-0">
@@ -163,6 +199,19 @@ const Index = () => {
         mode={authMode} 
         onChangeMode={(mode) => setAuthMode(mode)} 
       />
+
+      {selectedCase && isCaseOpeningActive && (
+        <CaseOpening
+          caseId={selectedCase.id}
+          caseName={selectedCase.name}
+          casePrice={selectedCase.price}
+          caseImage={selectedCase.image}
+          onClose={() => setIsCaseOpeningActive(false)}
+          onAddToInventory={addToInventory}
+          balance={balance}
+          onBalanceChange={updateBalance}
+        />
+      )}
     </div>
   );
 };

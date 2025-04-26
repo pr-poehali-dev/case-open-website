@@ -21,6 +21,8 @@ interface CaseOpeningProps {
   caseImage: string;
   onClose: () => void;
   onAddToInventory: (skin: Skin) => void;
+  balance: number;
+  onBalanceChange: (newBalance: number) => void;
 }
 
 const getRarityColor = (rarity: Skin["rarity"]) => {
@@ -53,11 +55,23 @@ const getRarityGradient = (rarity: Skin["rarity"]) => {
   }
 };
 
-export const CaseOpening = ({ caseId, caseName, casePrice, caseImage, onClose, onAddToInventory }: CaseOpeningProps) => {
+export const CaseOpening = ({ 
+  caseId, 
+  caseName, 
+  casePrice, 
+  caseImage, 
+  onClose, 
+  onAddToInventory, 
+  balance,
+  onBalanceChange 
+}: CaseOpeningProps) => {
   const [isOpening, setIsOpening] = useState(false);
   const [winningItem, setWinningItem] = useState<Skin | null>(null);
   const [possibleItems, setPossibleItems] = useState<Skin[]>([]);
   const [spinItems, setSpinItems] = useState<Skin[]>([]);
+  const [showWinningItem, setShowWinningItem] = useState(false);
+  const [insufficientFunds, setInsufficientFunds] = useState(false);
+  const [isInventoryUpdated, setIsInventoryUpdated] = useState(false);
   const spinnerRef = useRef<HTMLDivElement>(null);
   
   // Генерация предметов для кейса
@@ -84,7 +98,19 @@ export const CaseOpening = ({ caseId, caseName, casePrice, caseImage, onClose, o
   const openCase = () => {
     if (isOpening) return;
     
+    // Проверка баланса
+    if (balance < casePrice) {
+      setInsufficientFunds(true);
+      setTimeout(() => setInsufficientFunds(false), 3000);
+      return;
+    }
+    
+    // Списываем стоимость кейса
+    onBalanceChange(balance - casePrice);
+    
     setIsOpening(true);
+    setShowWinningItem(false);
+    setIsInventoryUpdated(false);
     
     // Генерация списка элементов для прокрутки (с повторениями для создания эффекта длинной ленты)
     const shuffledItems = [...possibleItems].sort(() => Math.random() - 0.5);
@@ -132,10 +158,33 @@ export const CaseOpening = ({ caseId, caseName, casePrice, caseImage, onClose, o
       // Показываем результат через 8 секунд (после завершения анимации)
       setTimeout(() => {
         if (selectedWin) {
-          onAddToInventory(selectedWin);
+          setShowWinningItem(true);
+          if (!isInventoryUpdated) {
+            onAddToInventory(selectedWin);
+            setIsInventoryUpdated(true);
+          }
         }
       }, 8000);
     }, 100);
+  };
+
+  const handleTakeItem = () => {
+    onClose();
+  };
+
+  const handleOpenAgain = () => {
+    setIsOpening(false);
+    setWinningItem(null);
+    setShowWinningItem(false);
+    setSpinItems([]);
+    setIsInventoryUpdated(false);
+    if (spinnerRef.current) {
+      spinnerRef.current.style.transition = "none";
+      spinnerRef.current.style.transform = "translateX(50%)";
+    }
+    setTimeout(() => {
+      openCase();
+    }, 50);
   };
 
   return (
@@ -170,13 +219,18 @@ export const CaseOpening = ({ caseId, caseName, casePrice, caseImage, onClose, o
               </div>
               
               {!isOpening ? (
-                <Button
-                  className="w-full md:w-auto bg-[#f97316] hover:bg-[#ea580c] text-lg py-6"
-                  onClick={openCase}
-                >
-                  Открыть за {casePrice} ₽
-                </Button>
-              ) : winningItem ? (
+                <div>
+                  <Button
+                    className="w-full md:w-auto bg-[#f97316] hover:bg-[#ea580c] text-lg py-6"
+                    onClick={openCase}
+                  >
+                    Открыть за {casePrice} ₽
+                  </Button>
+                  {insufficientFunds && (
+                    <p className="mt-2 text-red-500 animate-pulse">Недостаточно средств на балансе</p>
+                  )}
+                </div>
+              ) : showWinningItem && winningItem ? (
                 <div className="space-y-3">
                   <p className="text-gray-400">
                     Поздравляем! Вы получили:
@@ -190,6 +244,21 @@ export const CaseOpening = ({ caseId, caseName, casePrice, caseImage, onClose, o
                         <p className="text-[#f97316] font-bold">{winningItem.price.toLocaleString()} ₽</p>
                       </div>
                     </div>
+                  </div>
+                  <div className="flex space-x-4">
+                    <Button 
+                      className="bg-[#f97316] hover:bg-[#ea580c]"
+                      onClick={handleTakeItem}
+                    >
+                      Забрать предмет
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="border-gray-700 text-white hover:bg-gray-800"
+                      onClick={handleOpenAgain}
+                    >
+                      Открыть еще раз
+                    </Button>
                   </div>
                 </div>
               ) : null}
